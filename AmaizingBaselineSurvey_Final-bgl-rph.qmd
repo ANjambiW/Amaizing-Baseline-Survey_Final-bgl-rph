@@ -1,0 +1,215 @@
+---
+title: "Amaizing  Baseline Survey_Final-bgl-rph"
+author: "Njambi"
+format: html
+editor: visual
+---
+
+## 
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+## Clear the environment
+
+```{r}
+
+rm(list = ls())
+
+```
+
+## Loading necessary libraries
+
+```{r, include=FALSE}
+
+library(tidyverse) # includes the dplyr, ggplot2, tidyr, readr, stringr, forcats, tibble packages
+library(readxl)
+library(Hmisc)
+library(labelled)
+library(magrittr)
+library(datawizard)
+library(gtsummary)
+library(gt)
+library(kableExtra)
+library(flextable)
+library(splitstackshape)
+library(lubridate)
+library(foreign)
+library(haven)
+
+#library(ggplot2)
+#library(tidyr)
+#library(tibble)
+#library(dplyr)
+#library(stringr)
+
+```
+
+## Set the working directory
+
+```{r}
+# Set working directory (Not necessary since the current wd is the correct wd)
+
+setwd("C:\\Users\\awanjau\\OneDrive - CGIAR\\Alliance\\Alliance_2024\\AMAZING\\AmazingBaselineDataCleaning\\Amaizing  Baseline Survey_Final-bgl-rph")
+      
+```
+
+## Loading data
+
+```{r}
+# Read a csv file
+
+amaizing_groupmbrship_path <- "C:\\Users\\awanjau\\OneDrive - CGIAR\\Alliance\\Alliance_2024\\AMAZING\\aMaizingBaseline_Files\\Amaizing  Baseline Survey_Final-bgl-rph.csv"
+
+amaizing_groupmbrship <- read_csv(amaizing_groupmbrship_path)
+
+dim(amaizing_groupmbrship) # 3144    7
+
+```
+
+```{r}
+
+names(amaizing_groupmbrship)
+```
+
+```{r}
+unique(amaizing_groupmbrship$lname)
+
+```
+
+```{r}
+
+
+amaizing_groupmbrship <- amaizing_groupmbrship %>%
+  mutate(
+    lname = factor(lname )
+  )
+```
+
+```{r}
+unique(amaizing_groupmbrship$lname)
+
+```
+
+```{r}
+unique(amaizing_groupmbrship$l3)
+
+```
+
+```{r}
+role_levels <- c("Leadership Position",	"Ordinary Member")  
+
+amaizing_groupmbrship <- amaizing_groupmbrship %>%
+  mutate(
+    l3 = factor(
+      l3, 
+      levels = c(1,2), 
+      labels = role_levels
+    )
+  
+  ) 
+```
+
+```{r}
+unique(amaizing_groupmbrship$l3)
+
+```
+
+```{r}
+
+column_labels <- c(
+  
+lindex1 = "Group membership repeat iteration/index", # eg repeat 1, repeat 2, etc"
+lindex2 = "Group membership level/category selected",
+lname = "Group membership label/name corresponding to lindex2",
+l3 = "What is your role in lname?",
+PARENT_KEY = "Parent key",
+KEY = "Key",
+`SET-OF-rph` = "Group membership repeat group ID"
+
+)
+
+```
+
+```{r}
+
+# Rename columns with characters not supported by stata
+
+amaizing_groupmbrship <- amaizing_groupmbrship %>%
+  
+  rename(SET_OF_rph = `SET-OF-rph`
+    
+         )
+
+```
+
+```{r}
+# Set variable/column labels
+ 
+amaizing_groupmbrship <- amaizing_groupmbrship %>%
+  
+  set_variable_labels(.labels = column_labels)   # Requires package labelled
+```
+
+Using the function View() to open the new data in a spreadsheet reveals the column names and labels.
+
+```{r}
+
+# View(amaizing_groupmbrship)
+
+```
+
+## Generate a data dictionary
+
+```{r}
+# Data dictionary
+
+amaizing_groupmbrship_dict <- look_for(amaizing_groupmbrship, labels = TRUE, values = TRUE) %>%
+  dplyr::select(-c(missing, value_labels))
+
+  gt(amaizing_groupmbrship_dict)
+
+```
+
+## Export data dictionary to CSV
+
+```{r}
+
+readr::write_csv(amaizing_groupmbrship_dict, "amaizing_groupmbrship_dict.csv")
+
+```
+
+## Export data to CSV
+
+```{r}
+
+readr::write_csv(amaizing_groupmbrship, "amaizing_groupmbrship.csv")
+
+```
+
+## Save as R data
+
+```{r}
+
+save(amaizing_groupmbrship, file = "amaizing_groupmbrship.RData")
+
+#View(amaizing_groupmbrship)
+```
+
+## Export data to SPSS
+
+```{r}
+
+write.foreign(amaizing_groupmbrship, "amaizing_groupmbrship.sav", "amaizing_groupmbrship", package = "SPSS")
+
+```
+
+## Export data to STATA
+
+```{r}
+
+write_dta(amaizing_groupmbrship, "amaizing_groupmbrship.dta")
+
+```
